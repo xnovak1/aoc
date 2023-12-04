@@ -6,26 +6,13 @@ const input = fs
   .split("\n")
   .map((x) => x.trim());
 
-let reg = new RegExp("\\d+", "g");
-
-const is_alphanumeric = (char) => {
-  const code = char.charCodeAt(0);
-  return (
-    (code > 47 && code < 58) || // numeric (0-9)
-    (code > 64 && code < 91) || // upper alpha (A-Z)
-    (code > 96 && code < 123) // lower alpha (a-z)
-  );
-};
-
-const is_dot = (char) => {
-  return char === ".";
-};
-
 const is_gear = (char) => {
   return char === "*";
 };
 
-const has_symbol_neighbour = (lines, start_i, end_i, line_i) => {
+const has_gear_neighbour = (lines, start_i, end_i, line_i) => {
+  /* Returns coordinates in string form "yx" if gear found, null otherwise. */
+
   const WIDTH = lines[0].length;
   const HEIGHT = lines.length;
   const num_len = end_i - start_i + 1;
@@ -41,14 +28,19 @@ const has_symbol_neighbour = (lines, start_i, end_i, line_i) => {
       }
 
       const char = lines[line_i + i][start_i + j];
-      if (!is_dot(char) && !is_alphanumeric(char)) {
-        return true;
+      if (is_gear(char)) {
+        return (line_i + i).toString() + (start_i + j).toString();
       }
     }
   }
 
-  return false;
+  return null;
 };
+
+/* key: "yx" (coordinates), value: [number,...] */
+const gears = new Map();
+
+let reg = new RegExp("\\d+", "g");
 
 const solve = () => {
   let result = 0;
@@ -61,9 +53,20 @@ const solve = () => {
       const start_i = arr.index;
       const end_i = start_i + num.length - 1;
 
-      if (has_symbol_neighbour(input, start_i, end_i, i)) {
-        result += Number(num);
+      const gear_coords = has_gear_neighbour(input, start_i, end_i, i);
+      if (gear_coords !== null) {
+        if (gears.has(gear_coords)) {
+          gears.set(gear_coords, [...gears.get(gear_coords), num]);
+        } else {
+          gears.set(gear_coords, [num]);
+        }
       }
+    }
+  }
+
+  for ([_, value] of gears) {
+    if (value.length == 2) {
+      result += value[0] * value[1];
     }
   }
 
