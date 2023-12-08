@@ -18,26 +18,37 @@ const parse = (nodes) => {
   }
 }
 
+const GCD = (x, y) => (y === 0 ? x : GCD(y, x % y));
+
+const LCM = (...n) => n.reduce((x, y) => (x * y) / GCD(x, y));
+
 const solve = () => {
   const dirs = input[0];
   const nodes = new Map();
   parse(nodes);
 
-  let i = 0;
-  let curr_node = "AAA";
+  let curr_nodes = [...nodes].map(x => x[0]).filter(x => x[2] === "A");
+  let partial_results = [];
 
-  while (curr_node !== "ZZZ") {
-    let dir = dirs[i % dirs.length];
-    if (dir === "L") {
-      curr_node = nodes.get(curr_node)[0];
-    } else {
-      curr_node = nodes.get(curr_node)[1];
+  for (let i = 0; i < curr_nodes.length; i++) {
+    let node = curr_nodes[i];
+
+    let j = 0;
+    while (node[2] !== "Z") {
+      const dir = dirs[j % dirs.length];
+      if (dir === "L") {
+        node = nodes.get(node)[0];
+      } else {
+        node = nodes.get(node)[1];
+      }
+
+      j++;
     }
 
-    i++;
+    partial_results.push(j);
   }
 
-  return i;
+  return LCM(...partial_results);
 };
 
 console.log(solve());
