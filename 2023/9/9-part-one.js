@@ -6,38 +6,44 @@ const input = fs
   .split("\n")
   .map((x) => x.trim());
 
-const parse = (nodes) => {
-  for (let i = 2; i < input.length; i++) {
-    let line = input[i];
-    let new_node = line.split(" = ")[0];
-    let [left, right] = line.split(" = ")[1].split(", ");
-    left = left.substring(1);
-    right = right.substring(0, 3);
-
-    nodes.set(new_node, [left, right]);
+const get_next_seq = (seq) => {
+  let next = [];
+  for (let i = 0; i < seq.length - 1; i++) {
+    next.push(seq[i + 1] - seq[i]);
   }
+
+  return next;
 }
 
-const solve = () => {
-  const dirs = input[0];
-  const nodes = new Map();
-  parse(nodes);
+const calculate_next = (seq) => {
+  let all_seq = [seq];
 
   let i = 0;
-  let curr_node = "AAA";
-
-  while (curr_node !== "ZZZ") {
-    let dir = dirs[i % dirs.length];
-    if (dir === "L") {
-      curr_node = nodes.get(curr_node)[0];
-    } else {
-      curr_node = nodes.get(curr_node)[1];
-    }
-
+  while (all_seq[all_seq.length - 1].some(x => x !== 0)) {
+    all_seq.push(get_next_seq(all_seq[i]));
     i++;
   }
 
-  return i;
+  for (i; i > 0; i--) {
+    const prev_seq = all_seq[i - 1];
+    const curr_seq = all_seq[i]
+    prev_seq.push(prev_seq[prev_seq.length - 1] + curr_seq[curr_seq.length - 1]);
+  }
+
+  return all_seq[0];
+}
+
+const solve = () => {
+  let result = 0;
+
+  for (let i = 0; i < input.length; i++) {
+    let line = input[i];
+    let seq = line.split(" ").map(x => Number(x));
+    calculate_next(seq);
+    result += seq[seq.length - 1];
+  }
+
+  return result;
 };
 
 console.log(solve());
