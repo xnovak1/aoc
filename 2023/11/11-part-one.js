@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const input = fs
-  .readFileSync("input.txt")
+  .readFileSync("small.txt")
   .toString()
   .split("\n")
   .map((x) => x.trim());
@@ -48,6 +48,7 @@ const distance = (coords1, coords2) => {
 const distances = (universe) => {
   let result = 0;
   const galaxies = get_galaxies(universe);
+  console.log(galaxies);
 
   for (let i = 0; i < galaxies.length; i++) {
     for (let j = i + 1; j < galaxies.length; j++) {
